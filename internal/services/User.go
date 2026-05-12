@@ -1,22 +1,20 @@
+// internal/services/User.go: setup the business rules to manage users the way it is desired
 package services
 
 import (
 	"errors"
 
-	"github.com/google/uuid"
 	"github.com/kauanpecanha/odsquiz-auth/internal/models"
 	"github.com/kauanpecanha/odsquiz-auth/internal/repositories"
 	"github.com/kauanpecanha/odsquiz-auth/internal/utils"
 )
 
+// UserService setup in order to stabilish the connection between service and repository
 type UserService struct {
 	Repo repositories.UserRepository
 }
 
 func (s *UserService) CreateUser(user *models.User) (*models.User, error) {
-	if user.ID == "" {
-		user.ID = uuid.NewString()
-	}
 
 	hashedPassword, err := utils.HashPassword(user.Password)
 	if err != nil {
@@ -25,22 +23,6 @@ func (s *UserService) CreateUser(user *models.User) (*models.User, error) {
 	user.Password = hashedPassword
 
 	return s.Repo.CreateUser(user)
-}
-
-func (s *UserService) GetAllUsers() ([]models.User, error) {
-	return s.Repo.ReadUsers()
-}
-
-func (s *UserService) GetUserByID(id string) (*models.User, error) {
-	return s.Repo.ReadUserByID(id)
-}
-
-func (s *UserService) UpdateUser(user *models.User) (*models.User, error) {
-	return s.Repo.UpdateUser(user)
-}
-
-func (s *UserService) DeleteUser(id string) error {
-	return s.Repo.DeleteUser(id)
 }
 
 func (s *UserService) LoginUser(user *models.LoginUserRequest) (string, error) {
@@ -60,3 +42,20 @@ func (s *UserService) LoginUser(user *models.LoginUserRequest) (string, error) {
 
 	return token, nil
 }
+
+func (s *UserService) GetAllUsers() ([]models.User, error) {
+	return s.Repo.ReadUsers()
+}
+
+func (s *UserService) GetUserByID(id string) (*models.User, error) {
+	return s.Repo.ReadUserByID(id)
+}
+
+func (s *UserService) UpdateUser(user *models.User) (*models.User, error) {
+	return s.Repo.UpdateUser(user)
+}
+
+func (s *UserService) DeleteUser(id string) error {
+	return s.Repo.DeleteUser(id)
+}
+

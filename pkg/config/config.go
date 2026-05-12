@@ -1,4 +1,4 @@
-// Package config handles loading and managing application configuration from environment variables.
+// pkg/config/config.go: handles loading and managing application configuration from environment variables.
 package config
 
 import (

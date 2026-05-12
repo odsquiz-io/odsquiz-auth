@@ -1,4 +1,4 @@
-// Package database provides functions for database connections and operations.
+// pkg/database/postgres.go: provides functions for postgres database connections and operations.
 package database
 
 import (

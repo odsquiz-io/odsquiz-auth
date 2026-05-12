@@ -1,3 +1,4 @@
+// internal/utils/Token.go: setup the token feature to allow routing through protected routes
 package utils
 
 import (

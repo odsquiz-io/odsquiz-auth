@@ -1,3 +1,4 @@
+// internal/middleware/Middleware.go: Implement the API Middleware in order to setup auth-needed routes protection with Bearer Token
 package middleware
 
 import (
@@ -8,6 +9,7 @@ import (
 	"github.com/kauanpecanha/odsquiz-auth/pkg/config"
 )
 
+// Protected function to setup Authorization Header handling
 func Protected() fiber.Handler {
 
 	cfg, err := config.Load()
@@ -18,26 +20,29 @@ func Protected() fiber.Handler {
 
 	return func(c fiber.Ctx) error {
 		authHeader := c.Get("Authorization")
-
+		// missing authorization header error handling
 		if authHeader == "" {
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 				"error": "missing authorization header",
 			})
 		}
 
-		// Expect: Bearer <token>
+		// token extraction
 		tokenString := strings.TrimPrefix(authHeader, "Bearer ")
 
+		// missing "Bearer" error handling
 		if tokenString == authHeader {
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 				"error": "invalid authorization format",
 			})
 		}
 
+		// token return
 		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (any, error) {
 			return secretKey, nil
 		})
 
+		// invalid/expired token error handling
 		if err != nil || !token.Valid {
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 				"error": "invalid or expired token",

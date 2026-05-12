@@ -1,9 +1,8 @@
+// internal/models/User.go: setups the User model structure according to its table and its side types to handle requests and responses
 package models
 
 import (
 	"time"
-
-	"github.com/google/uuid"
 )
 
 type User struct {
@@ -20,13 +19,7 @@ type User struct {
 	Points    int       `gorm:"default:0" json:"points"`
 }
 
-func (u *User) BeforeCreate(tx any) error {
-	if u.ID == "" {
-		u.ID = uuid.NewString()
-	}
-	return nil
-}
-
+// LoginUserRequest type to handle login inputs
 type LoginUserRequest struct {
 	Email     string    `json:"email"`
 	Password  string    `json:"password"`

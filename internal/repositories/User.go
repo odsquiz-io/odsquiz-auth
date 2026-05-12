@@ -1,3 +1,4 @@
+// internal/repositories/User.go: setups the interface to, with model, interact with database using ORM (gorm)
 package repositories
 
 import (
@@ -8,15 +9,17 @@ import (
 	"gorm.io/gorm"
 )
 
+// interface to expose all methods to interact with database
 type UserRepository interface {
 	CreateUser(user *models.User) (*models.User, error)
 	ReadUsers() ([]models.User, error)
 	ReadUserByID(id string) (*models.User, error)
+	ReadUserByEmail(email string) (*models.User, error)
 	UpdateUser(user *models.User) (*models.User, error)
 	DeleteUser(id string) error
-	ReadUserByEmail(email string) (*models.User, error)
 }
 
+// repository to setup gorm as ORM to interact with DB
 type repository struct {
 	DB *gorm.DB
 }
@@ -65,6 +68,17 @@ func (r *repository) ReadUserByID(id string) (*models.User, error) {
 	return &user, nil
 }
 
+func (r *repository) ReadUserByEmail(email string) (*models.User, error) {
+	var user models.User
+
+	err := r.DB.First(&user, "email = ?", email).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return &user, nil
+}
+
 func (r *repository) UpdateUser(user *models.User) (*models.User, error) {
 	user.UpdatedAt = time.Now()
 
@@ -91,15 +105,4 @@ func (r *repository) DeleteUser(id string) error {
 	}
 
 	return nil
-}
-
-func (r *repository) ReadUserByEmail(email string) (*models.User, error) {
-	var user models.User
-
-	err := r.DB.First(&user, "email = ?", email).Error
-	if err != nil {
-		return nil, err
-	}
-
-	return &user, nil
 }

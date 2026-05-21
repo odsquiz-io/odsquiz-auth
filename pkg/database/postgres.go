@@ -55,3 +55,7 @@ func NewPostgresConnection(cfg *config.Config) (*gorm.DB, error) {
 
 	return db, nil
 }
+
+func AutoMigrate(db *gorm.DB, models ...any) error {
+	return db.AutoMigrate(models...)
+}

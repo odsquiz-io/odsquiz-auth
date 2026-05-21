@@ -19,7 +19,10 @@ func main() {
 		log.Fatal(err)
 	}
 	
-	migrations.RunMigrations()
+	err = migrations.RunMigrations()
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	app := fiber.New(fiber.Config{
 		AppName: "ODS Quiz Auth Microservice",

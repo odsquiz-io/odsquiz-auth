@@ -1,4 +1,3 @@
-// internal/handlers/User.go: Implement HTTP requests and responses handling
 package handlers
 
 import (
@@ -8,33 +7,32 @@ import (
 	"github.com/kauanpecanha/odsquiz-auth/internal/services"
 )
 
-// UserHandler defines the connection between handler and service
-type UserHandler struct {
-	Service *services.UserService
+type Handler struct {
+	Service *services.Service
 }
 
-func (h *UserHandler) CreateUser(c fiber.Ctx) error {
-	user := new(models.User)
+func (h *Handler) CreateOne(c fiber.Ctx) error {
+	one := new(models.User)
 
-	if err := c.Bind().Body(user); err != nil {
+	if err := c.Bind().Body(one); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(err.Error())
 	}
 
-	createdUser, err := h.Service.CreateUser(user)
+	createdOne, err := h.Service.CreateOne(one)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(err.Error())
 	}
 
-	return c.Status(fiber.StatusCreated).JSON(createdUser)
+	return c.Status(fiber.StatusCreated).JSON(createdOne)
 }
 
-func (h *UserHandler) LoginUser(c fiber.Ctx) error {
-	user := new(models.LoginUserRequest)
-	if err := c.Bind().Body(user); err != nil {
+func (h *Handler) Login(c fiber.Ctx) error {
+	one := new(models.LoginRequest)
+	if err := c.Bind().Body(one); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(err.Error())
 	}
 
-	token, err := h.Service.LoginUser(user)
+	token, err := h.Service.Login(one)
 	if err != nil {
 		return c.Status(fiber.StatusUnauthorized).JSON(
 			fiber.Map{"error": err.Error()},
@@ -46,16 +44,16 @@ func (h *UserHandler) LoginUser(c fiber.Ctx) error {
 	})
 }
 
-func (h *UserHandler) GetAllUsers(c fiber.Ctx) error {
-	users, err := h.Service.GetAllUsers()
+func (h *Handler) GetAllOnes(c fiber.Ctx) error {
+	ones, err := h.Service.GetAllOnes()
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(err.Error())
 	}
 
-	return c.Status(fiber.StatusOK).JSON(users)
+	return c.Status(fiber.StatusOK).JSON(ones)
 }
 
-func (h *UserHandler) GetUserByID(c fiber.Ctx) error {
+func (h *Handler) GetOneByID(c fiber.Ctx) error {
 	id := c.Params("id")
 
 	_, err := uuid.Parse(id)
@@ -63,15 +61,15 @@ func (h *UserHandler) GetUserByID(c fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(err.Error())
 	}
 
-	user, err := h.Service.GetUserByID(id)
+	one, err := h.Service.GetOneByID(id)
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(err.Error())
 	}
 
-	return c.Status(fiber.StatusOK).JSON(user)
+	return c.Status(fiber.StatusOK).JSON(one)
 }
 
-func (h *UserHandler) UpdateUser(c fiber.Ctx) error {
+func (h *Handler) UpdateOne(c fiber.Ctx) error {
 	id := c.Params("id")
 
 	_, err := uuid.Parse(id)
@@ -79,24 +77,24 @@ func (h *UserHandler) UpdateUser(c fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(err.Error())
 	}
 
-	user := new(models.User)
+	one := new(models.User)
 
-	if err := c.Bind().Body(user); err != nil {
+	if err := c.Bind().Body(one); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(err.Error())
 	}
 
 	// force route param ID
-	user.ID = id
+	one.ID = id
 
-	updatedUser, err := h.Service.UpdateUser(user)
+	updatedOne, err := h.Service.UpdateOne(one)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(err.Error())
 	}
 
-	return c.Status(fiber.StatusOK).JSON(updatedUser)
+	return c.Status(fiber.StatusOK).JSON(updatedOne)
 }
 
-func (h *UserHandler) DeleteUser(c fiber.Ctx) error {
+func (h *Handler) DeleteOne(c fiber.Ctx) error {
 	id := c.Params("id")
 
 	_, err := uuid.Parse(id)
@@ -104,7 +102,7 @@ func (h *UserHandler) DeleteUser(c fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON("invalid id")
 	}
 
-	err = h.Service.DeleteUser(id)
+	err = h.Service.DeleteOne(id)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(err.Error())
 	}

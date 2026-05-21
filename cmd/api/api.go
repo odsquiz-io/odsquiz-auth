@@ -1,4 +1,3 @@
-// cmd/api/api.go: Entry point for the ODS Quiz Auth API microservice.
 package main
 
 import (
@@ -13,7 +12,6 @@ import (
 )
 
 func main() {
-	// Load configuration settings
 	cfg, err := config.Load()
 	if err != nil {
 		log.Fatal(err)

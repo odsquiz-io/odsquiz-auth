@@ -1,9 +1,9 @@
-// internal/middleware/Middleware.go: Implement the API Middleware in order to setup auth-needed routes protection with Bearer Token
 package middleware
 
 import (
 	"log"
 	"strings"
+
 	"github.com/gofiber/fiber/v3"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/kauanpecanha/odsquiz-auth/pkg/config"

@@ -10,7 +10,6 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 
-	"github.com/kauanpecanha/odsquiz-auth/internal/models"
 	"github.com/kauanpecanha/odsquiz-auth/pkg/config"
 )
 
@@ -40,22 +39,11 @@ func NewPostgresConnection(cfg *config.Config) (*gorm.DB, error) {
 	if err != nil {
 		log.Fatal("Failed to connect to database. \n", err)
 	}
-
-	// successfull message
-	log.Println("connected")
-	db.Logger = logger.Default.LogMode(logger.Info)
-	log.Println("running migrations")
-	if err := db.AutoMigrate(&models.User{}); err != nil {
-		return nil, err
-	}
-
-	DB = Dbinstance{
-		Db: db,
-	}
-
+	DB = Dbinstance{ Db: db }
 	return db, nil
 }
 
+// AutoMigrate allows automigration action at any part of the code
 func AutoMigrate(db *gorm.DB, models ...any) error {
 	return db.AutoMigrate(models...)
 }

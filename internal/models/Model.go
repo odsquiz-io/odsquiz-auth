@@ -1,4 +1,3 @@
-// internal/models/User.go: setups the User model structure according to its table and its side types to handle requests and responses
 package models
 
 import (
@@ -19,8 +18,7 @@ type User struct {
 	Points    int       `gorm:"default:0" json:"points"`
 }
 
-// LoginUserRequest type to handle login inputs
-type LoginUserRequest struct {
-	Email     string    `json:"email"`
-	Password  string    `json:"password"`
+type LoginRequest struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }

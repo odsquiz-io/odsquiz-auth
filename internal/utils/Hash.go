@@ -1,4 +1,4 @@
-// internal/utils/Hash.go: setup the bcrypt usage to manage users encrypted passwords (hash and compare) 
+// internal/utils/Hash.go: setup the bcrypt usage to manage encrypted passwords (hash and compare) 
 package utils
 
 import (

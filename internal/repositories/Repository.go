@@ -79,12 +79,15 @@ func (r *repository) ReadOneByEmail(email string) (*models.User, error) {
 func (r *repository) UpdateOne(one *models.User) (*models.User, error) {
 	one.UpdatedAt = time.Now()
 
-	err := r.DB.Model(&models.User{}).
+	result := r.DB.Model(&models.User{}).
 		Where("id = ?", one.ID).
-		Updates(one).Error
+		Updates(one)
 
-	if err != nil {
-		return nil, err
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	if result.RowsAffected == 0 {
+		return nil, gorm.ErrRecordNotFound
 	}
 
 	return one, nil
@@ -96,9 +99,12 @@ func (r *repository) DeleteOne(id string) error {
 		return err
 	}
 
-	err = r.DB.Delete(&models.User{}, "id = ?", id).Error
-	if err != nil {
-		return err
+	result := r.DB.Delete(&models.User{}, "id = ?", id)
+	if result.Error != nil {
+		return result.Error
+	}
+	if result.RowsAffected == 0 {
+		return gorm.ErrRecordNotFound
 	}
 
 	return nil

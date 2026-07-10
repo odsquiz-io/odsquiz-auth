@@ -34,6 +34,10 @@ func Load() (*Config, error) {
 		DBUser:     os.Getenv("DB_USER"),
 		DBPassword: os.Getenv("DB_PASSWORD"),
 		DBName:     os.Getenv("DB_NAME"),
+		DBSSLMode:  os.Getenv("DB_SSLMODE"),
+	}
+	if cfg.DBSSLMode == "" {
+		cfg.DBSSLMode = "require"
 	}
 
 	// Validate that required database fields are set

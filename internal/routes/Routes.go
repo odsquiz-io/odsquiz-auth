@@ -22,6 +22,8 @@ func Setup(app *fiber.App) {
 	app.Get("/", func(c fiber.Ctx) error { return c.SendString("Hello, world!") })
 	app.Get("/health", func(c fiber.Ctx) error { return c.SendString("ok") })
 	// unprotected routes (can be used without bearer token)
+	app.Post("/api/auth/signup", handler.CreateOne)
+	app.Post("/api/auth/login", handler.Login)
 	app.Post("/signup", handler.CreateOne)
 	app.Post("/login", handler.Login)
 	// protected routes (can be used ONLY with bearer token)

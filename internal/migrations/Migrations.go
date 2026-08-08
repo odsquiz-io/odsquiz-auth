@@ -1,27 +1,23 @@
 package migrations
 
 import (
-	"log"
+	"context"
+	"fmt"
 
 	"github.com/kauanpecanha/odsquiz-auth/internal/models"
 	"github.com/kauanpecanha/odsquiz-auth/pkg/config"
 	"github.com/kauanpecanha/odsquiz-auth/pkg/database"
 )
 
-func RunMigrations() error {
-	cfg, err := config.Load()
+func RunMigrations(ctx context.Context, cfg *config.Config) error {
+	db, err := database.NewPostgresConnection(ctx, cfg)
 	if err != nil {
-		log.Fatal(err)
-	}
-
-	db, err := database.NewPostgresConnection(cfg)
-	if err != nil {
-		log.Fatal(err)
+		return fmt.Errorf("connect to database: %w", err)
 	}
 
 	if err := db.AutoMigrate(&models.User{}); err != nil {
-		log.Fatal(err)
+		return fmt.Errorf("migrate users: %w", err)
 	}
 
-	return err
+	return nil
 }

@@ -1,2 +1,5 @@
-internal.md
+readme.md
 .env*
+*.md
+!README.md
+!readme.md

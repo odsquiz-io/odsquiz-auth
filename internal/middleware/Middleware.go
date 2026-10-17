@@ -9,6 +9,9 @@ import (
 	"github.com/kauanpecanha/odsquiz-auth/pkg/config"
 )
 
+// ContextUserID holds the authenticated user's identifier, from the "sub" claim.
+const ContextUserID = "userID"
+
 // Protected function to setup Authorization Header handling
 func Protected() fiber.Handler {
 
@@ -47,6 +50,12 @@ func Protected() fiber.Handler {
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 				"error": "invalid or expired token",
 			})
+		}
+
+		if claims, ok := token.Claims.(jwt.MapClaims); ok {
+			if subject, ok := claims["sub"].(string); ok && subject != "" {
+				c.Locals(ContextUserID, subject)
+			}
 		}
 
 		return c.Next()

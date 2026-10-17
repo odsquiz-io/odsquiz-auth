@@ -4,6 +4,7 @@ import (
 	"github.com/gofiber/fiber/v3"
 	"github.com/google/uuid"
 	"github.com/kauanpecanha/odsquiz-auth/internal/apperrors"
+	"github.com/kauanpecanha/odsquiz-auth/internal/middleware"
 	"github.com/kauanpecanha/odsquiz-auth/internal/models"
 	"github.com/kauanpecanha/odsquiz-auth/internal/services"
 )
@@ -47,6 +48,24 @@ func (h *Handler) Login(c fiber.Ctx) error {
 	return c.Status(fiber.StatusAccepted).JSON(fiber.Map{
 		"token": token,
 	})
+}
+
+// Me returns the authenticated user, resolved from the validated token subject.
+func (h *Handler) Me(c fiber.Ctx) error {
+	userID, _ := c.Locals(middleware.ContextUserID).(string)
+	if userID == "" {
+		return respondError(c, apperrors.Unauthorized(
+			apperrors.CodeInvalidCredentials,
+			nil,
+		))
+	}
+
+	one, err := h.Service.GetOneByID(userID)
+	if err != nil {
+		return respondError(c, err)
+	}
+
+	return c.Status(fiber.StatusOK).JSON(models.NewUserResponse(one))
 }
 
 func (h *Handler) GetAllOnes(c fiber.Ctx) error {

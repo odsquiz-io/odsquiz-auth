@@ -21,13 +21,24 @@ type Service struct {
 	Repo repositories.Repository
 }
 
-func (s *Service) CreateOne(one *models.User) (*models.User, error) {
-
-	hashedPassword, err := utils.HashPassword(one.Password)
+func (s *Service) CreateOne(req *models.SignupRequest) (*models.User, error) {
+	hashedPassword, err := utils.HashPassword(req.Password)
 	if err != nil {
 		return nil, err
 	}
-	one.Password = hashedPassword
+
+	one := &models.User{
+		Name:     req.Name,
+		Email:    req.Email,
+		Password: hashedPassword,
+		Address:  req.Address,
+		CEP:      req.CEP,
+		City:     req.City,
+		State:    req.State,
+		Lat:      req.Lat,
+		Lon:      req.Lon,
+		Role:     models.RoleUser,
+	}
 
 	createdOne, err := s.Repo.CreateOne(one)
 	if err != nil {
@@ -53,6 +64,10 @@ func (s *Service) Login(one *models.LoginRequest) (string, error) {
 		)
 	}
 
+	if dbUser.SuspendedAt != nil {
+		return "", apperrors.Forbidden(apperrors.CodeAccountSuspended, nil)
+	}
+
 	token, err := utils.CreateToken(dbUser.ID, dbUser.Email)
 	if err != nil {
 		return "", err
@@ -61,11 +76,8 @@ func (s *Service) Login(one *models.LoginRequest) (string, error) {
 	return token, nil
 }
 
-func (s *Service) GetAllOnes() ([]models.User, error) {
-	return s.Repo.ReadOnes()
-}
-
-func (s *Service) GetOneByID(id string) (*models.User, error) {
+// GetActiveOneByID returns the user, rejecting suspended accounts.
+func (s *Service) GetActiveOneByID(id string) (*models.User, error) {
 	one, err := s.Repo.ReadOneByID(id)
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, apperrors.NotFound(apperrors.CodeUserNotFound, err)
@@ -74,19 +86,18 @@ func (s *Service) GetOneByID(id string) (*models.User, error) {
 		return nil, err
 	}
 
+	if one.SuspendedAt != nil {
+		return nil, apperrors.Forbidden(apperrors.CodeAccountSuspended, nil)
+	}
+
 	return one, nil
 }
 
-func (s *Service) UpdateOne(one *models.User) (*models.User, error) {
-	updatedOne, err := s.Repo.UpdateOne(one)
-	if err != nil {
-		return nil, mapUserWriteError(err)
+func (s *Service) UpdateProfile(id string, req *models.UpdateProfileRequest) (*models.User, error) {
+	if _, err := s.GetActiveOneByID(id); err != nil {
+		return nil, err
 	}
 
-	return updatedOne, nil
-}
-
-func (s *Service) UpdateProfile(id string, req *models.UpdateProfileRequest) (*models.User, error) {
 	one := &models.User{
 		ID:      id,
 		Name:    strings.TrimSpace(req.Name),
@@ -110,18 +121,6 @@ func (s *Service) UpdateProfile(id string, req *models.UpdateProfileRequest) (*m
 	}
 
 	return updatedOne, nil
-}
-
-func (s *Service) DeleteOne(id string) error {
-	err := s.Repo.DeleteOne(id)
-	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return apperrors.NotFound(apperrors.CodeUserNotFound, err)
-	}
-	if err != nil {
-		return err
-	}
-
-	return nil
 }
 
 func mapUserWriteError(err error) error {

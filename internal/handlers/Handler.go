@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"github.com/gofiber/fiber/v3"
-	"github.com/google/uuid"
 	"github.com/kauanpecanha/odsquiz-auth/internal/apperrors"
 	"github.com/kauanpecanha/odsquiz-auth/internal/middleware"
 	"github.com/kauanpecanha/odsquiz-auth/internal/models"
@@ -14,16 +13,15 @@ type Handler struct {
 }
 
 func (h *Handler) CreateOne(c fiber.Ctx) error {
-	one := new(models.User)
-
-	if err := c.Bind().Body(one); err != nil {
+	req := new(models.SignupRequest)
+	if err := c.Bind().Body(req); err != nil {
 		return respondError(c, apperrors.BadRequest(
 			apperrors.CodeInvalidRequest,
 			err,
 		))
 	}
 
-	createdOne, err := h.Service.CreateOne(one)
+	createdOne, err := h.Service.CreateOne(req)
 	if err != nil {
 		return respondError(c, err)
 	}
@@ -60,7 +58,7 @@ func (h *Handler) Me(c fiber.Ctx) error {
 		))
 	}
 
-	one, err := h.Service.GetOneByID(userID)
+	one, err := h.Service.GetActiveOneByID(userID)
 	if err != nil {
 		return respondError(c, err)
 	}
@@ -94,84 +92,6 @@ func (h *Handler) UpdateMe(c fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(models.NewUserResponse(updatedOne))
 }
 
-func (h *Handler) GetAllOnes(c fiber.Ctx) error {
-	ones, err := h.Service.GetAllOnes()
-	if err != nil {
-		return respondError(c, err)
-	}
-
-	return c.Status(fiber.StatusOK).JSON(ones)
-}
-
-func (h *Handler) GetOneByID(c fiber.Ctx) error {
-	id := c.Params("id")
-
-	_, err := uuid.Parse(id)
-	if err != nil {
-		return respondError(c, apperrors.BadRequest(
-			apperrors.CodeInvalidRequest,
-			err,
-		))
-	}
-
-	one, err := h.Service.GetOneByID(id)
-	if err != nil {
-		return respondError(c, err)
-	}
-
-	return c.Status(fiber.StatusOK).JSON(one)
-}
-
-func (h *Handler) UpdateOne(c fiber.Ctx) error {
-	id := c.Params("id")
-
-	_, err := uuid.Parse(id)
-	if err != nil {
-		return respondError(c, apperrors.BadRequest(
-			apperrors.CodeInvalidRequest,
-			err,
-		))
-	}
-
-	one := new(models.User)
-
-	if err := c.Bind().Body(one); err != nil {
-		return respondError(c, apperrors.BadRequest(
-			apperrors.CodeInvalidRequest,
-			err,
-		))
-	}
-
-	// force route param ID
-	one.ID = id
-
-	updatedOne, err := h.Service.UpdateOne(one)
-	if err != nil {
-		return respondError(c, err)
-	}
-
-	return c.Status(fiber.StatusOK).JSON(updatedOne)
-}
-
-func (h *Handler) DeleteOne(c fiber.Ctx) error {
-	id := c.Params("id")
-
-	_, err := uuid.Parse(id)
-	if err != nil {
-		return respondError(c, apperrors.BadRequest(
-			apperrors.CodeInvalidRequest,
-			err,
-		))
-	}
-
-	err = h.Service.DeleteOne(id)
-	if err != nil {
-		return respondError(c, err)
-	}
-
-	return c.Status(fiber.StatusOK).JSON("deleted successfully")
-}
-
 type errorResponse struct {
 	Code apperrors.Code `json:"code"`
 }
@@ -193,6 +113,8 @@ func statusFor(kind apperrors.Kind) int {
 		return fiber.StatusBadRequest
 	case apperrors.KindUnauthorized:
 		return fiber.StatusUnauthorized
+	case apperrors.KindForbidden:
+		return fiber.StatusForbidden
 	case apperrors.KindNotFound:
 		return fiber.StatusNotFound
 	case apperrors.KindConflict:

@@ -65,13 +65,20 @@ docker build -t odsquiz-auth .
 
 ## API paths
 
-- `POST /api/auth/signup`
-- `POST /api/auth/login`
+- `POST /api/auth/signup` (legacy alias `POST /signup`)
+- `POST /api/auth/login` (legacy alias `POST /login`)
 - `GET /api/auth/me`
 - `PATCH /api/auth/me`
 - `GET /health`
 
 The public load balancer exposes this service through `/api/auth/*`.
+
+Signup accepts only `name`, `email`, `password`, `address`, `cep`, `city`,
+`state`, `lat`, and `lon`; every new account gets the `user` role. User
+responses include `role` (`user` or `admin`). A suspended account receives
+`403 {"code":"account_suspended"}` from login and from both `/api/auth/me`
+routes. Roles and suspensions are read from the database on each request; the
+JWT does not carry them.
 
 ## Configuration convention
 

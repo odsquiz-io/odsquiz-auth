@@ -29,10 +29,6 @@ func Setup(app *fiber.App) {
 	// protected routes (can be used ONLY with bearer token)
 	app.Get("/api/auth/me", middleware.Protected(), handler.Me)
 	app.Patch("/api/auth/me", middleware.Protected(), handler.UpdateMe)
-	app.Get("/getAllOnes", middleware.Protected(), handler.GetAllOnes)
-	app.Get("/getOneById/:id", middleware.Protected(), handler.GetOneByID)
-	app.Patch("/updateOne/:id", middleware.Protected(), handler.UpdateOne)
-	app.Delete("/deleteOne/:id", middleware.Protected(), handler.DeleteOne)
 
 	app.Use(func(c fiber.Ctx) error { return c.SendStatus(fiber.StatusNotFound) })
 }

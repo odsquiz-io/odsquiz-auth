@@ -14,6 +14,7 @@ type Repository interface {
 	ReadOneByID(id string) (*models.User, error)
 	ReadOneByEmail(email string) (*models.User, error)
 	UpdateOne(one *models.User) (*models.User, error)
+	UpdateProfile(one *models.User) (*models.User, error)
 	DeleteOne(id string) error
 }
 
@@ -91,6 +92,25 @@ func (r *repository) UpdateOne(one *models.User) (*models.User, error) {
 	}
 
 	return one, nil
+}
+
+func (r *repository) UpdateProfile(one *models.User) (*models.User, error) {
+	one.UpdatedAt = time.Now()
+
+	// Select also writes empty values, and every other column stays untouched.
+	result := r.DB.Model(&models.User{}).
+		Where("id = ?", one.ID).
+		Select("name", "address", "cep", "city", "state", "lat", "lon", "updated_at").
+		Updates(one)
+
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	if result.RowsAffected == 0 {
+		return nil, gorm.ErrRecordNotFound
+	}
+
+	return r.ReadOneByID(one.ID)
 }
 
 func (r *repository) DeleteOne(id string) error {

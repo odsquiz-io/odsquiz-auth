@@ -2,12 +2,19 @@ package services
 
 import (
 	"errors"
+	"regexp"
+	"strings"
 
 	"github.com/kauanpecanha/odsquiz-auth/internal/apperrors"
 	"github.com/kauanpecanha/odsquiz-auth/internal/models"
 	"github.com/kauanpecanha/odsquiz-auth/internal/repositories"
 	"github.com/kauanpecanha/odsquiz-auth/internal/utils"
 	"gorm.io/gorm"
+)
+
+var (
+	nonDigits    = regexp.MustCompile(`\D`)
+	statePattern = regexp.MustCompile(`^[A-Z]{2}$`)
 )
 
 type Service struct {
@@ -72,6 +79,32 @@ func (s *Service) GetOneByID(id string) (*models.User, error) {
 
 func (s *Service) UpdateOne(one *models.User) (*models.User, error) {
 	updatedOne, err := s.Repo.UpdateOne(one)
+	if err != nil {
+		return nil, mapUserWriteError(err)
+	}
+
+	return updatedOne, nil
+}
+
+func (s *Service) UpdateProfile(id string, req *models.UpdateProfileRequest) (*models.User, error) {
+	one := &models.User{
+		ID:      id,
+		Name:    strings.TrimSpace(req.Name),
+		Address: strings.TrimSpace(req.Address),
+		CEP:     nonDigits.ReplaceAllString(req.CEP, ""),
+		City:    strings.TrimSpace(req.City),
+		State:   strings.ToUpper(strings.TrimSpace(req.State)),
+		Lat:     req.Lat,
+		Lon:     req.Lon,
+	}
+
+	if one.Name == "" ||
+		(one.CEP != "" && len(one.CEP) != 8) ||
+		(one.State != "" && !statePattern.MatchString(one.State)) {
+		return nil, apperrors.BadRequest(apperrors.CodeInvalidRequest, nil)
+	}
+
+	updatedOne, err := s.Repo.UpdateProfile(one)
 	if err != nil {
 		return nil, mapUserWriteError(err)
 	}

@@ -67,6 +67,8 @@ docker build -t odsquiz-auth .
 
 - `POST /api/auth/signup`
 - `POST /api/auth/login`
+- `GET /api/auth/me`
+- `PATCH /api/auth/me`
 - `GET /health`
 
 The public load balancer exposes this service through `/api/auth/*`.

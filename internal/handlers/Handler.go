@@ -28,7 +28,7 @@ func (h *Handler) CreateOne(c fiber.Ctx) error {
 		return respondError(c, err)
 	}
 
-	return c.Status(fiber.StatusCreated).JSON(createdOne)
+	return c.Status(fiber.StatusCreated).JSON(models.NewUserResponse(createdOne))
 }
 
 func (h *Handler) Login(c fiber.Ctx) error {
@@ -66,6 +66,32 @@ func (h *Handler) Me(c fiber.Ctx) error {
 	}
 
 	return c.Status(fiber.StatusOK).JSON(models.NewUserResponse(one))
+}
+
+// UpdateMe replaces the authenticated user's editable fields; omitted fields are cleared.
+func (h *Handler) UpdateMe(c fiber.Ctx) error {
+	userID, _ := c.Locals(middleware.ContextUserID).(string)
+	if userID == "" {
+		return respondError(c, apperrors.Unauthorized(
+			apperrors.CodeInvalidCredentials,
+			nil,
+		))
+	}
+
+	req := new(models.UpdateProfileRequest)
+	if err := c.Bind().Body(req); err != nil {
+		return respondError(c, apperrors.BadRequest(
+			apperrors.CodeInvalidRequest,
+			err,
+		))
+	}
+
+	updatedOne, err := h.Service.UpdateProfile(userID, req)
+	if err != nil {
+		return respondError(c, err)
+	}
+
+	return c.Status(fiber.StatusOK).JSON(models.NewUserResponse(updatedOne))
 }
 
 func (h *Handler) GetAllOnes(c fiber.Ctx) error {

@@ -13,6 +13,8 @@ type User struct {
 	UpdatedAt time.Time `json:"updated_at"`
 	Address   string    `json:"address"`
 	CEP       string    `json:"cep"`
+	City      string    `gorm:"type:varchar(255)" json:"city"`
+	State     string    `gorm:"type:varchar(2)" json:"state"`
 	Lat       float64   `json:"lat"`
 	Lon       float64   `json:"lon"`
 	Points    int       `gorm:"default:0" json:"points"`
@@ -25,6 +27,8 @@ type UserResponse struct {
 	Email     string    `json:"email"`
 	Address   string    `json:"address"`
 	CEP       string    `json:"cep"`
+	City      string    `json:"city"`
+	State     string    `json:"state"`
 	Lat       float64   `json:"lat"`
 	Lon       float64   `json:"lon"`
 	Points    int       `json:"points"`
@@ -39,6 +43,8 @@ func NewUserResponse(one *User) UserResponse {
 		Email:     one.Email,
 		Address:   one.Address,
 		CEP:       one.CEP,
+		City:      one.City,
+		State:     one.State,
 		Lat:       one.Lat,
 		Lon:       one.Lon,
 		Points:    one.Points,
@@ -50,4 +56,14 @@ func NewUserResponse(one *User) UserResponse {
 type LoginRequest struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
+}
+
+type UpdateProfileRequest struct {
+	Name    string  `json:"name"`
+	Address string  `json:"address"`
+	CEP     string  `json:"cep"`
+	City    string  `json:"city"`
+	State   string  `json:"state"`
+	Lat     float64 `json:"lat"`
+	Lon     float64 `json:"lon"`
 }

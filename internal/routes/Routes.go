@@ -28,6 +28,7 @@ func Setup(app *fiber.App) {
 	app.Post("/login", handler.Login)
 	// protected routes (can be used ONLY with bearer token)
 	app.Get("/api/auth/me", middleware.Protected(), handler.Me)
+	app.Patch("/api/auth/me", middleware.Protected(), handler.UpdateMe)
 	app.Get("/getAllOnes", middleware.Protected(), handler.GetAllOnes)
 	app.Get("/getOneById/:id", middleware.Protected(), handler.GetOneByID)
 	app.Patch("/updateOne/:id", middleware.Protected(), handler.UpdateOne)

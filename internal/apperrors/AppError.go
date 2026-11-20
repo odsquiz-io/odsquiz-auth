@@ -20,6 +20,7 @@ const (
 	CodeUserNotFound       Code = "user_not_found"
 	CodeEmailAlreadyExists Code = "email_already_exists"
 	CodeAccountSuspended   Code = "account_suspended"
+	CodeTermsNotAccepted   Code = "terms_not_accepted"
 	CodeInternal           Code = "internal_error"
 )
 

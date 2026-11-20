@@ -66,7 +66,7 @@ func (r *repository) UpdateProfile(one *models.User) (*models.User, error) {
 	// Select also writes empty values, and every other column stays untouched.
 	result := r.DB.Model(&models.User{}).
 		Where("id = ?", one.ID).
-		Select("name", "address", "cep", "city", "state", "lat", "lon", "updated_at").
+		Select("name", "cep", "city", "state", "updated_at").
 		Updates(one)
 
 	if result.Error != nil {

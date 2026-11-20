@@ -5,8 +5,8 @@ import (
 	"log"
 
 	"github.com/gofiber/fiber/v3"
-	"github.com/gofiber/fiber/v3/middleware/cors"
 
+	"github.com/kauanpecanha/odsquiz-auth/internal/middleware"
 	"github.com/kauanpecanha/odsquiz-auth/internal/migrations"
 	"github.com/kauanpecanha/odsquiz-auth/internal/routes"
 	"github.com/kauanpecanha/odsquiz-auth/pkg/config"
@@ -31,7 +31,7 @@ func main() {
 		AppName: "ODS Quiz Auth Microservice",
 	})
 
-	app.Use(cors.New())
+	app.Use(middleware.RequireOrigin(cfg.OriginToken))
 
 	routes.Setup(app)
 	

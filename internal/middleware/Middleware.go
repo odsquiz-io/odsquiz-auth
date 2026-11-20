@@ -42,6 +42,9 @@ func Protected() fiber.Handler {
 
 		// token return
 		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (any, error) {
+			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+				return nil, jwt.ErrTokenSignatureInvalid
+			}
 			return secretKey, nil
 		})
 
